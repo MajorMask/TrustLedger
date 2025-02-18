@@ -1,1 +1,7 @@
-matplotlib
+python3
+transformers
+torch
+torchvision
+numpy
+pandas
+

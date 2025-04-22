@@ -4,3 +4,4 @@ torch
 Pillow
 pytesseract
 werkzeug
+sentencepiece

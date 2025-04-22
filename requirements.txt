@@ -1,7 +1,6 @@
-python3
+flask
 transformers
 torch
-torchvision
-numpy
-pandas
-
+Pillow
+pytesseract
+werkzeug

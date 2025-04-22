@@ -1,0 +1,63 @@
+from flask import Flask, request, jsonify, render_template
+import os
+from werkzeug.utils import secure_filename
+from model import ocr_extract_text, translate_text, add_watermark
+
+# Initialize Flask app
+app = Flask(__name__, template_folder="templates", static_folder="static")
+
+# Define upload folder and allowed extensions
+UPLOAD_FOLDER = './uploads'
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+# Ensure the upload folder exists
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+# Helper function to check allowed file extensions
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+@app.route('/')
+def index():
+    """Render the frontend."""
+    return render_template('index.html')
+
+@app.route('/process', methods=['POST'])
+def process_request():
+    """Process an image, translate text, and add a watermark."""
+    if 'image' not in request.files:
+        return jsonify({"error": "No image file provided"}), 400
+
+    # Get the image file from the request
+    image_file = request.files['image']
+    if image_file.filename == '' or not allowed_file(image_file.filename):
+        return jsonify({"error": "Invalid or missing image file"}), 400
+
+    # Save the image temporarily in the upload folder
+    image_filename = secure_filename(image_file.filename)
+    image_path = os.path.join(app.config['UPLOAD_FOLDER'], image_filename)
+    image_file.save(image_path)
+
+    try:
+        # Step 1: Extract text using OCR
+        extracted_text = ocr_extract_text(image_path)
+
+        # Step 2: Translate text from Hungarian to English
+        translated_text = translate_text(extracted_text)
+
+        # Step 3: Add watermark and save the translated document
+        output_path = os.path.join(app.config['UPLOAD_FOLDER'], f"translated_{image_filename}")
+        add_watermark(image_path, translated_text, output_path)
+
+        return jsonify({
+            "message": "Processing completed successfully",
+            "extracted_text": extracted_text,
+            "translated_text": translated_text,
+            "output_image": f"/uploads/translated_{image_filename}"
+        }), 200
+    except Exception as e:
+        return jsonify({"error": f"An error occurred: {str(e)}"}), 500
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000)

@@ -16,8 +16,13 @@ def translate_text(text):
     inputs = tokenizer(text, return_tensors="pt", padding=True, truncation=True)
     translated = model.generate(**inputs)
     return tokenizer.decode(translated[0], skip_special_tokens=True)
+from PIL import Image, ImageDraw, ImageFont
+import pytesseract
+from PIL import Image, ImageDraw, ImageFont
+import pytesseract
+
 def add_watermark(image_path, translated_text, output_path):
-    """Reconstruct the document with translated text and add a watermark."""
+    """Replace Hungarian text with English translation and add a watermark."""
     # Open the original image
     image = Image.open(image_path)
     draw = ImageDraw.Draw(image)
@@ -26,8 +31,29 @@ def add_watermark(image_path, translated_text, output_path):
     font_path = "/Library/Fonts/Arial.ttf"  # Update this path to the correct location
     font = ImageFont.truetype(font_path, size=20)
 
-    # Overlay translated text
-    draw.text((50, 50), translated_text, fill="black", font=font)
+    # Extract bounding boxes for text regions
+    ocr_data = pytesseract.image_to_boxes(Image.open(image_path), lang="hun")
+    translated_lines = translated_text.split("\n")
+
+    # Overlay translated text at the corresponding bounding boxes
+    for i, line in enumerate(ocr_data.splitlines()):
+        if i < len(translated_lines):
+            box = line.split()
+            x0, y0, x1, y1 = int(box[1]), int(box[2]), int(box[3]), int(box[4])
+            
+            # Adjust y-coordinates for PIL's coordinate system
+            y0 = image.height - y0
+            y1 = image.height - y1
+
+            # Ensure y1 is greater than or equal to y0
+            if y1 > y0:
+                y0, y1 = y1, y0
+
+            # Clear the original text
+            draw.rectangle([(x0, y1), (x1, y0)], fill="white")
+
+            # Overlay the translated text
+            draw.text((x0, y1), translated_lines[i], fill="black", font=font)
 
     # Add watermark
     watermark_text = "Translated by MyApp"
@@ -35,18 +61,3 @@ def add_watermark(image_path, translated_text, output_path):
 
     # Save the output image
     image.save(output_path)
-# # Example usage
-# image_path = "document.jpg"
-# output_path = "translated_document.jpg"
-
-# # Step 1: Extract text
-# extracted_text = ocr_extract_text(image_path)
-# print("Extracted Text:", extracted_text)
-
-# # Step 2: Translate text
-# translated_text = translate_text(extracted_text)
-# print("Translated Text:", translated_text)
-
-# # Step 3: Reconstruct document with watermark
-# add_watermark(image_path, translated_text, output_path)
-# print(f"Translated document saved to {output_path}")

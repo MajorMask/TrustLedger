@@ -16,7 +16,6 @@ def translate_text(text):
     inputs = tokenizer(text, return_tensors="pt", padding=True, truncation=True)
     translated = model.generate(**inputs)
     return tokenizer.decode(translated[0], skip_special_tokens=True)
-
 def add_watermark(image_path, translated_text, output_path):
     """Reconstruct the document with translated text and add a watermark."""
     # Open the original image
@@ -24,7 +23,8 @@ def add_watermark(image_path, translated_text, output_path):
     draw = ImageDraw.Draw(image)
 
     # Define font (ensure the font file is available)
-    font = ImageFont.truetype("arial.ttf", size=20)
+    font_path = "/Library/Fonts/Arial.ttf"  # Update this path to the correct location
+    font = ImageFont.truetype(font_path, size=20)
 
     # Overlay translated text
     draw.text((50, 50), translated_text, fill="black", font=font)
@@ -35,19 +35,18 @@ def add_watermark(image_path, translated_text, output_path):
 
     # Save the output image
     image.save(output_path)
+# # Example usage
+# image_path = "document.jpg"
+# output_path = "translated_document.jpg"
 
-# Example usage
-image_path = "document.jpg"
-output_path = "translated_document.jpg"
+# # Step 1: Extract text
+# extracted_text = ocr_extract_text(image_path)
+# print("Extracted Text:", extracted_text)
 
-# Step 1: Extract text
-extracted_text = ocr_extract_text(image_path)
-print("Extracted Text:", extracted_text)
+# # Step 2: Translate text
+# translated_text = translate_text(extracted_text)
+# print("Translated Text:", translated_text)
 
-# Step 2: Translate text
-translated_text = translate_text(extracted_text)
-print("Translated Text:", translated_text)
-
-# Step 3: Reconstruct document with watermark
-add_watermark(image_path, translated_text, output_path)
-print(f"Translated document saved to {output_path}")
+# # Step 3: Reconstruct document with watermark
+# add_watermark(image_path, translated_text, output_path)
+# print(f"Translated document saved to {output_path}")

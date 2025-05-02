@@ -5,4 +5,3 @@ Pillow
 pytesseract
 werkzeug
 sentencepiece
-sacremoses

@@ -20,3 +20,7 @@ This is a Flask-based backend for OCR, translation, and watermarking of document
    ```bash
    git clone https://github.com/your-username/TrustLedger.git
    cd TrustLedger
+
+   brew install tesseract
+   brew install tesseract-lang
+   export TESSDATA_PREFIX=/opt/homebrew/share/tessdata

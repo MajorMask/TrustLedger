@@ -17,12 +17,18 @@
             <button type="submit">Upload and Process</button>
         </form>
 
-        <div id="result">
-            <h2>Results</h2>
-            <p><strong>Extracted Text:</strong> <span id="extractedText"></span></p>
-            <p><strong>Translated Text:</strong> <span id="translatedText"></span></p>
-            <p><strong>Translated Document:</strong></p>
-            <img id="outputImage" alt="Translated Document" style="max-width: 100%; display: none;">
+        <div id="result" style="display: none;">
+            <h2>Extracted Text:</h2>
+            <p id="extractedText"></p>
+        
+            <h2>Translated Text:</h2>
+            <p id="translatedText"></p>
+        
+            <h2>Watermarked Image:</h2>
+            <img id="outputImage" style="max-width: 100%; display: none;" />
+        
+            <h2>Translated Text Image:</h2>
+            <img id="textImage" style="max-width: 100%; display: none;" />
         </div>
     </div>
 

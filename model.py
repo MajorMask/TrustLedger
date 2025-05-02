@@ -2,6 +2,7 @@ from transformers import MarianMTModel, MarianTokenizer
 from PIL import Image, ImageDraw, ImageFont
 import pytesseract
 import logging
+
 # Load MarianMT model and tokenizer
 model_name = "Helsinki-NLP/opus-mt-hu-en"
 tokenizer = MarianTokenizer.from_pretrained(model_name)
@@ -81,6 +82,35 @@ def add_watermark(image_path, translated_text, output_path):
     # Add watermark
     watermark_text = "Translated by MyApp"
     draw.text((image.width - 200, image.height - 50), watermark_text, fill="gray", font=font)
+
+    # Save the output image
+    image.save(output_path)
+
+
+def create_translated_image(translated_text, output_path):
+    """Create a new image with the translated text written on it."""
+    # Define font (ensure the font file is available)
+    font_path = "/Library/Fonts/Arial.ttf"  # Update this path to the correct location
+    font = ImageFont.truetype(font_path, size=20)
+
+    # Split the translated text into lines
+    lines = translated_text.split("\n")
+
+    # Calculate the image size based on the text
+    line_height = font.getbbox("A")[3] - font.getbbox("A")[1]  # Height of a single line
+    padding = 20  # Padding around the text
+    image_width = 800  # Fixed width for the image
+    image_height = padding * 2 + line_height * len(lines)  # Height based on the number of lines
+
+    # Create a blank white image
+    image = Image.new("RGB", (image_width, image_height), "white")
+    draw = ImageDraw.Draw(image)
+
+    # Write the translated text onto the image
+    y = padding
+    for line in lines:
+        draw.text((padding, y), line, fill="black", font=font)
+        y += line_height
 
     # Save the output image
     image.save(output_path)

@@ -24,3 +24,4 @@ This is a Flask-based backend for OCR, translation, and watermarking of document
    brew install tesseract
    brew install tesseract-lang
    export TESSDATA_PREFIX=/opt/homebrew/share/tessdata
+   brew install poppler  # Required for pdf2image on macOS

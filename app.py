@@ -2,6 +2,8 @@ from flask import Flask, request, jsonify, render_template
 import os
 from werkzeug.utils import secure_filename
 from model import ocr_extract_text, translate_text, add_watermark
+
+from flask import send_from_directory
 os.environ[ "TESSDATA_PREFIX"] = "/opt/homebrew/share/tessdata"
 # Initialize Flask app
 app = Flask(__name__, template_folder="templates", static_folder="static")
@@ -28,6 +30,7 @@ def index():
 import logging
 
 logging.basicConfig(level=logging.DEBUG)
+
 
 @app.route('/process', methods=['POST'])
 def process_request():
@@ -69,5 +72,11 @@ def process_request():
     except Exception as e:
         logging.error(f"An error occurred: {str(e)}")
         return jsonify({"error": f"An error occurred: {str(e)}"}), 500
+
+# Serve the uploads folder as static content
+@app.route('/uploads/<filename>')
+def uploaded_file(filename):
+    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5001)
